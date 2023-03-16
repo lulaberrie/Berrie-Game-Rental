@@ -14,6 +14,7 @@ A passionate software developer from Austin TX 🔭 currently working on 🎮 <b
   Containerisation: Docker<br>
   Security: Spring Basic Authentication<br>
   Deployment: Heroku<br>
+  Testing: Junit • Mockito
  
 <h4>Frontend Technologies:</h4> 
   Languages : JavaScript • HTML • CSS<br>
