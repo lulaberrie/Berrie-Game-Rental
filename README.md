@@ -5,20 +5,20 @@ A passionate software developer from Austin TX 🔭 currently working on 🎮 <b
   The backend service is contained in this repository, however the frontend website is built as a seperate service, which I will link on completion. 
 
 <h4>Backend Technologies:</h4> 
-  Structure : OOP<br>
-  Language : Java<br>
-  Framework : Spring Boot<br>
-  API : REST Api<br>
-  External API : RAWG<br>
-  Database : MongoDB<br>
-  Containerisation: Docker<br>
-  Security: Spring Basic Authentication<br>
-  Deployment: Heroku<br>
-  Testing: Junit • Mockito
+  Structure : <b>OOP<br></b>
+  Language : <b>Java<br></b>
+  Framework : <b>Spring Boot<br></b>
+  API : <b>REST Api<br></b>
+  External API : <b>RAWG<br></b>
+  Database : <b>MongoDB<br></b>
+  Containerisation: <b>Docker<br></b>
+  Security: <b>Spring Basic Authentication<br></b>
+  Deployment: <b>Heroku<br></b>
+  Testing: <b>Junit • Mockito</b>
  
 <h4>Frontend Technologies:</h4> 
-  Languages : JavaScript • HTML • CSS<br>
-  Framework : ReactJS<br>
+  Languages : <b>JavaScript • HTML • CSS<br></b>
+  Framework : <b>ReactJS<br></b>
   
 <h3></h3>
 This is a fun project where I exercise, learn and develop my skills 🤸🏽‍♀️. 
