@@ -21,7 +21,7 @@ A passionate software developer from Austin TX 🔭 currently working on 🎮 <b
   Framework : <b>ReactJS<br></b>
   
 <h3></h3>
-This is a fun project where I exercise, learn and develop my skills 🤸🏽‍♀️. 
+This is a fun project where I get to exercise and develop my skills. I will update the read me as I make changes and add on new features 🤸🏽‍♀️.
 <h4>Connect with me:</h4>
 <p align="left">
 <a href="https://linkedin.com/in/amabuowari" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="abuowari" height="30" width="40" /></a>
