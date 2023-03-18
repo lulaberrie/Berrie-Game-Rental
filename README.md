@@ -12,7 +12,7 @@ A passionate software developer from Austin TX 🔭 currently working on 🎮 <b
   External API : <b>RAWG<br></b>
   Database : <b>MongoDB<br></b>
   Containerisation: <b>Docker<br></b>
-  Security: <b>Spring Basic Authentication<br></b>
+  Security: <b>Spring Security JWT<br></b>
   Deployment: <b>Heroku<br></b>
   Testing: <b>Junit • Mockito</b>
  
