@@ -3,7 +3,7 @@ package com.berrie.gamerental.controller;
 import com.berrie.gamerental.dto.AuthenticationRequest;
 import com.berrie.gamerental.dto.AuthenticationResponse;
 import com.berrie.gamerental.exception.UserExistsException;
-import com.berrie.gamerental.exception.UserNotFoundException;
+import com.berrie.gamerental.exception.UserUnauthorizedException;
 import com.berrie.gamerental.service.AuthenticationService;
 import com.berrie.gamerental.util.ModelMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -165,7 +165,7 @@ public class AuthenticationControllerTest {
     @Test
     public void authenticateUser_IncorrectUsernameOrPassword_unauthorized() throws Exception {
         // given
-        when(authenticationService.authenticateUser(request)).thenThrow(new UserNotFoundException("User not found"));
+        when(authenticationService.authenticateUser(request)).thenThrow(new UserUnauthorizedException("User unauthorized"));
 
         // when & then
         mockMvc.perform(post(AUTHENTICATE_URI)
