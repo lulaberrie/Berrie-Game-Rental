@@ -55,7 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // if we have a username and the user is not authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            // check is user token is valid
+            // check if user token is valid
             if (jwtAuthService.isTokenValid(jsonWebToken, userDetails)) {
                 // authenticate user
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

@@ -1,7 +1,6 @@
 package com.berrie.gamerental.service;
 
 import com.berrie.gamerental.dto.AuthenticationRequest;
-import com.berrie.gamerental.dto.AuthenticationResponse;
 import com.berrie.gamerental.exception.UserExistsException;
 import com.berrie.gamerental.exception.UserNotFoundException;
 import com.berrie.gamerental.model.Role;
@@ -11,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class AuthenticationService {
      * @param request request object containing the required fields to create a user.
      * @return JWT generated token.
      */
-    public AuthenticationResponse createUser(AuthenticationRequest request) {
+    public String createUser(AuthenticationRequest request) {
         final String username = request.getUsername();
         log.info("Creating new user with username {}", username);
         User user = User.builder()
@@ -48,10 +48,7 @@ public class AuthenticationService {
 
 
         log.info("User with username {} successfully created", username);
-        String jsonWebToken = jwtAuthService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jsonWebToken)
-                .build();
+        return jwtAuthService.generateToken(user);
     }
 
     /**
@@ -59,20 +56,23 @@ public class AuthenticationService {
      * @param request request object containing the required fields to authenticate a user.
      * @return JWT generated token.
      */
-    public AuthenticationResponse authenticateUser(AuthenticationRequest request) {
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public String authenticateUser(AuthenticationRequest request) {
         final String username = request.getUsername();
         log.info("Authenticating user with username {}", username);
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                username,
-                request.getPassword()
-        ));
+
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    username,
+                    request.getPassword()
+            ));
+        } catch (BadCredentialsException ex) {
+            log.error("User with username {} was not authenticated", username);
+            throw new UserNotFoundException(String.format("%s: User %s doesn't exist", ex.getMessage(), username));
+        }
 
         log.info("User with username {} successfully authenticated", username);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User %s doesn't exist", username)));
-        String jsonWebToken = jwtAuthService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jsonWebToken)
-                .build();
+        User user = userRepository.findByUsername(username).get();
+        return jwtAuthService.generateToken(user);
     }
 }
