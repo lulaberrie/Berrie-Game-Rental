@@ -15,8 +15,4 @@ public class ModelMapper {
     public static String toJson(Object obj) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(obj);
     }
-
-    public static <T> T fromJson(String json, Class<T> tclass) throws JsonProcessingException {
-        return new ObjectMapper().readValue(json, tclass);
-    }
 }

@@ -177,6 +177,7 @@ public class AuthenticationControllerIntegrationTest {
         assertThat(user.isCredentialsNonExpired()).isTrue();
         assertThat(user.isEnabled()).isTrue();
     }
+
     private void assertNoTokenReturned(MvcResult result) throws Exception {
         String responseBody = result.getResponse().getContentAsString();
         assertThat(responseBody.contains("jsonWebToken")).isFalse();
