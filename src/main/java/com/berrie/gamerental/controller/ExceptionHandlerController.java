@@ -35,6 +35,6 @@ public class ExceptionHandlerController {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ErrorResponse handleUserNotFoundException(UserNotFoundException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
+        return ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED, ex.getMessage()).build();
     }
 }

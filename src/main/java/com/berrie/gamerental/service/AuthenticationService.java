@@ -68,7 +68,7 @@ public class AuthenticationService {
             ));
         } catch (BadCredentialsException ex) {
             log.error("User with username {} was not authenticated", username);
-            throw new UserNotFoundException(String.format("%s: User %s doesn't exist", ex.getMessage(), username));
+            throw new UserNotFoundException(String.format("Either the User %s or password is incorrect", username));
         }
 
         log.info("User with username {} successfully authenticated", username);
