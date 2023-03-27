@@ -1,4 +1,4 @@
-<h2>Hi 👋, I'm Ama Buowari</h2>
+<h2>Hi 👋, I'm Ama</h2>
 A passionate software developer from Austin TX 🔭 currently working on 🎮 <b>Berrie Game Rental</b>, a video game rental application where users can submit games for rent, rent games themselves and return them. We can assume that these games are physical copies for simplicity. 
 
 <h4> This project employs the following frameworks and tools:</h4>
@@ -9,19 +9,17 @@ A passionate software developer from Austin TX 🔭 currently working on 🎮 <b
   Language : <b>Java<br></b>
   Framework : <b>Spring Boot<br></b>
   API : <b>REST Api<br></b>
-  External API : <b>RAWG<br></b>
   Database : <b>MongoDB<br></b>
   Containerisation: <b>Docker<br></b>
   Security: <b>Spring Security JWT<br></b>
   Deployment: <b>Heroku<br></b>
-  Testing: <b>Junit • Mockito</b>
+  Testing: <b>Junit • Mockito • AssertJ</b>
  
 <h4>Frontend Technologies:</h4> 
   Languages : <b>JavaScript • HTML • CSS<br></b>
   Framework : <b>ReactJS<br></b>
   
 <h3></h3>
-This is a fun project where I get to exercise and develop my skills. I will update the read me as I make changes and add on new features 🤸🏽‍♀️.
 <h4>Connect with me:</h4>
 <p align="left">
 <a href="https://linkedin.com/in/amabuowari" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="abuowari" height="30" width="40" /></a>

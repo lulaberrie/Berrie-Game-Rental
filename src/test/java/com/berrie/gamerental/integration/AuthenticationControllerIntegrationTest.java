@@ -172,6 +172,7 @@ public class AuthenticationControllerIntegrationTest {
         assertThat(user.getUsername()).isEqualTo(VALID_USERNAME);
         assertThat(user.getPassword()).isNotEqualTo(VALID_PASSWORD);
         assertThat(user.getRole()).isEqualTo(Role.USER);
+        assertThat(user.getSubmittedGames()).isNotNull();
         assertThat(user.isAccountNonExpired()).isTrue();
         assertThat(user.isAccountNonLocked()).isTrue();
         assertThat(user.isCredentialsNonExpired()).isTrue();

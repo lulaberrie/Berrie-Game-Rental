@@ -15,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ public class AuthenticationService {
      * Method to create a new user provided the user does not already exist.
      * @param request request object containing the required fields to create a user.
      * @return JWT generated token.
+     * @throws UserExistsException if a user with the same username already exists.
      */
     public String createUser(AuthenticationRequest request) {
         final String username = request.getUsername();
@@ -41,11 +44,11 @@ public class AuthenticationService {
                 .username(username)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .submittedGames(new ArrayList<>())
                 .build();
         if (userRepository.findByUsername(username).isEmpty()) {
             userRepository.save(user);
         } else throw new UserExistsException(String.format("User with username %s already exists", username));
-
 
         log.info("User with username {} successfully created", username);
         return jwtAuthService.generateToken(user);
@@ -55,6 +58,7 @@ public class AuthenticationService {
      * Method to log in a returning user provided the user already exists.
      * @param request request object containing the required fields to authenticate a user.
      * @return JWT generated token.
+     * @throws UserUnauthorizedException if the user's credentials are invalid.
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public String authenticateUser(AuthenticationRequest request) {
