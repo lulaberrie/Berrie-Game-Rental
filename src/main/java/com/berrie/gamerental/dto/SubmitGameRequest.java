@@ -1,7 +1,7 @@
 package com.berrie.gamerental.dto;
 
-import com.berrie.gamerental.model.Genre;
-import com.berrie.gamerental.model.Platform;
+import com.berrie.gamerental.model.enums.Genre;
+import com.berrie.gamerental.model.enums.Platform;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

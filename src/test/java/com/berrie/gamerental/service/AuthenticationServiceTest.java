@@ -3,7 +3,7 @@ package com.berrie.gamerental.service;
 import com.berrie.gamerental.dto.AuthenticationRequest;
 import com.berrie.gamerental.exception.UserExistsException;
 import com.berrie.gamerental.exception.UserUnauthorizedException;
-import com.berrie.gamerental.model.Role;
+import com.berrie.gamerental.model.enums.Role;
 import com.berrie.gamerental.model.User;
 import com.berrie.gamerental.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,14 +49,14 @@ public class AuthenticationServiceTest {
     private AuthenticationRequest request;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         request = new AuthenticationRequest();
         request.setUsername(USERNAME);
         request.setPassword(PASSWORD);
     }
 
     @Test
-    public void createUser_newUser_returnsToken() {
+    void createUser_newUser_returnsToken() {
         // given
         User savedUser = buildUser();
 
@@ -74,7 +74,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void createUser_existingUser_throwsUserExistsException() {
+    void createUser_existingUser_throwsUserExistsException() {
         // given
         User existingUser = buildUser();
 
@@ -87,7 +87,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void authenticateUser_validRequest_returnsToken() {
+    void authenticateUser_validRequest_returnsToken() {
         // given
         User retrievedUser = buildUser();
 
@@ -104,7 +104,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    public void authenticateUser_badCredentials_throwsUserUnauthorizedException() {
+    void authenticateUser_badCredentials_throwsUserUnauthorizedException() {
         // given
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(BadCredentialsException.class);

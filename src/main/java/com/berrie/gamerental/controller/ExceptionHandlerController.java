@@ -1,5 +1,6 @@
 package com.berrie.gamerental.controller;
 
+import com.berrie.gamerental.exception.NoGamesFoundException;
 import com.berrie.gamerental.exception.UserExistsException;
 import com.berrie.gamerental.exception.UserUnauthorizedException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -36,5 +37,10 @@ public class ExceptionHandlerController {
     @ExceptionHandler(UserUnauthorizedException.class)
     public ErrorResponse handleUserUnauthorizedException(UserUnauthorizedException ex) {
         return ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED, ex.getMessage()).build();
+    }
+
+    @ExceptionHandler(NoGamesFoundException.class)
+    public ErrorResponse handleNoGamesFoundException(NoGamesFoundException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
     }
 }

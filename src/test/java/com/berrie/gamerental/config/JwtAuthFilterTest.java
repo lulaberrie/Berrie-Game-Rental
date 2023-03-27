@@ -45,17 +45,17 @@ public class JwtAuthFilterTest {
     private JwtAuthFilter jwtAuthFilter;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         SecurityContextHolder.clearContext();
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
     @Test
-    public void doFilterInternal_tokenPresentAndValid_authenticatesUser() throws Exception {
+    void doFilterInternal_tokenPresentAndValid_authenticatesUser() throws Exception {
         // given
         String token = "valid.token";
         String authHeader = "Bearer " + token;
@@ -89,7 +89,7 @@ public class JwtAuthFilterTest {
     }
 
     @Test
-    public void doFilterInternal_tokenNotPresent_doesNotAuthenticateUser() throws Exception {
+    void doFilterInternal_tokenNotPresent_doesNotAuthenticateUser() throws Exception {
         // given
         String authHeader = null;
         when(request.getHeader(AUTH_HEADER_NAME)).thenReturn(authHeader);
@@ -108,7 +108,7 @@ public class JwtAuthFilterTest {
     }
 
     @Test
-    public void doFilterInternal_tokenPresentAndInvalid_doesNotAuthenticateUser() throws Exception {
+    void doFilterInternal_tokenPresentAndInvalid_doesNotAuthenticateUser() throws Exception {
         // given
         String token = "invalid.token";
         String authHeader = "Bearer " + token;

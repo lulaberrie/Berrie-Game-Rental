@@ -1,5 +1,8 @@
 package com.berrie.gamerental.model;
 
+import com.berrie.gamerental.model.enums.GameStatus;
+import com.berrie.gamerental.model.enums.Genre;
+import com.berrie.gamerental.model.enums.Platform;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

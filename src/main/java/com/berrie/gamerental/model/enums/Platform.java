@@ -1,4 +1,4 @@
-package com.berrie.gamerental.model;
+package com.berrie.gamerental.model.enums;
 
 public enum Platform {
     PC,

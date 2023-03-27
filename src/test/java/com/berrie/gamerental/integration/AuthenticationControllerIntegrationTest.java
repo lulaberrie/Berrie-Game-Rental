@@ -1,7 +1,7 @@
 package com.berrie.gamerental.integration;
 
 import com.berrie.gamerental.dto.AuthenticationRequest;
-import com.berrie.gamerental.model.Role;
+import com.berrie.gamerental.model.enums.Role;
 import com.berrie.gamerental.model.User;
 import com.berrie.gamerental.repository.UserRepository;
 import com.berrie.gamerental.util.ModelMapper;
@@ -40,7 +40,7 @@ public class AuthenticationControllerIntegrationTest {
     private UserRepository userRepository;
 
     @Test
-    public void createUser_validRequest_createsUser() throws Exception {
+    void createUser_validRequest_createsUser() throws Exception {
         // given
         AuthenticationRequest request = AuthenticationRequest.builder()
                 .username(VALID_USERNAME)
@@ -62,7 +62,7 @@ public class AuthenticationControllerIntegrationTest {
     }
 
     @Test
-    public void createUser_userExists_doesNotCreateUser() throws Exception {
+    void createUser_userExists_doesNotCreateUser() throws Exception {
         // given
         String berrieUser = "berrieUserTwo";
         AuthenticationRequest request = AuthenticationRequest.builder()
@@ -90,7 +90,7 @@ public class AuthenticationControllerIntegrationTest {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    public void authenticateUser_validRequest_authenticatesUser() throws Exception {
+    void authenticateUser_validRequest_authenticatesUser() throws Exception {
         // given
         String berrieUser = "berrieUserThree";
         AuthenticationRequest request = AuthenticationRequest.builder()
@@ -118,7 +118,7 @@ public class AuthenticationControllerIntegrationTest {
     }
 
     @Test
-    public void authenticateUser_userDoesNotExist_doesNotAuthenticateUser() throws Exception {
+    void authenticateUser_userDoesNotExist_doesNotAuthenticateUser() throws Exception {
         // given
         String berrieUser = "berrieUserFour";
         AuthenticationRequest request = AuthenticationRequest.builder()
@@ -139,7 +139,7 @@ public class AuthenticationControllerIntegrationTest {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    public void authenticateUser_existingUserIncorrectPassword_doesNotAuthenticateUser() throws Exception {
+    void authenticateUser_existingUserIncorrectPassword_doesNotAuthenticateUser() throws Exception {
         // given
         String berrieUser = "berrieUserFive";
         AuthenticationRequest request = AuthenticationRequest.builder()

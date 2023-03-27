@@ -3,7 +3,7 @@ package com.berrie.gamerental.service;
 import com.berrie.gamerental.dto.AuthenticationRequest;
 import com.berrie.gamerental.exception.UserExistsException;
 import com.berrie.gamerental.exception.UserUnauthorizedException;
-import com.berrie.gamerental.model.Role;
+import com.berrie.gamerental.model.enums.Role;
 import com.berrie.gamerental.model.User;
 import com.berrie.gamerental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +32,8 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     /**
-     * Method to create a new user provided the user does not already exist.
-     * @param request request object containing the required fields to create a user.
+     * Create a new user provided the user does not already exist.
+     * @param request {@link AuthenticationRequest} object containing the required fields to create a user.
      * @return JWT generated token.
      * @throws UserExistsException if a user with the same username already exists.
      */
@@ -55,8 +55,8 @@ public class AuthenticationService {
     }
 
     /**
-     * Method to log in a returning user provided the user already exists.
-     * @param request request object containing the required fields to authenticate a user.
+     * Logs in a returning user provided the user already exists.
+     * @param request {@link AuthenticationRequest} object containing the required fields to authenticate a user.
      * @return JWT generated token.
      * @throws UserUnauthorizedException if the user's credentials are invalid.
      */
