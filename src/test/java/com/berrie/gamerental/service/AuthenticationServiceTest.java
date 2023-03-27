@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,14 +86,6 @@ public class AuthenticationServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
-    private User buildUser() {
-        return User.builder()
-                .username(USERNAME)
-                .password(ENCODED_PASSWORD)
-                .role(Role.USER)
-                .build();
-    }
-
     @Test
     public void authenticateUser_validRequest_returnsToken() {
         // given
@@ -121,5 +114,14 @@ public class AuthenticationServiceTest {
                 .isInstanceOf(UserUnauthorizedException.class);
         verifyNoInteractions(userRepository);
         verifyNoInteractions(jwtAuthService);
+    }
+
+    private User buildUser() {
+        return User.builder()
+                .username(USERNAME)
+                .password(ENCODED_PASSWORD)
+                .role(Role.USER)
+                .submittedGames(new ArrayList<>())
+                .build();
     }
 }
