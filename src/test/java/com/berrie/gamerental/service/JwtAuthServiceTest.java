@@ -33,7 +33,7 @@ public class JwtAuthServiceTest {
     private String token;
 
     @BeforeEach()
-    public void setup() {
+    void setup() {
         token = Jwts.builder()
                 .setSubject(USERNAME)
                 .setIssuedAt(new Date())
@@ -43,7 +43,7 @@ public class JwtAuthServiceTest {
     }
 
     @Test
-    public void extractUsername_withToken_returnsUsername() {
+    void extractUsername_withToken_returnsUsername() {
         // when
         String actual = jwtAuthService.extractUsername(token);
         // then
@@ -51,7 +51,7 @@ public class JwtAuthServiceTest {
     }
 
     @Test
-    public void generateToken_withUserDetails_returnsJwtToken() {
+    void generateToken_withUserDetails_returnsJwtToken() {
         // given
         when(userDetails.getUsername()).thenReturn(USERNAME);
         // when
@@ -61,7 +61,7 @@ public class JwtAuthServiceTest {
     }
 
     @Test
-    public void isTokenValid_withValidToken_returnsTrue() {
+    void isTokenValid_withValidToken_returnsTrue() {
         // given
         when(userDetails.getUsername()).thenReturn(USERNAME);
         // then
@@ -69,7 +69,7 @@ public class JwtAuthServiceTest {
     }
 
     @Test
-    public void isTokenValid_withInvalidUsername_returnsFalse() {
+    void isTokenValid_withInvalidUsername_returnsFalse() {
         // given
         when(userDetails.getUsername()).thenReturn("invalidUser");
         // then
@@ -77,7 +77,7 @@ public class JwtAuthServiceTest {
     }
 
     @Test
-    public void isTokenValid_withExpiredToken_returnsFalse() {
+    void isTokenValid_withExpiredToken_returnsFalse() {
         // given
         String invalidToken = Jwts.builder()
                 .setSubject(USERNAME)

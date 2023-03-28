@@ -6,7 +6,4 @@ public class UserUnauthorizedException extends RuntimeException {
         super(message);
     }
 
-    public UserUnauthorizedException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

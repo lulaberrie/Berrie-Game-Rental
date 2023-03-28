@@ -6,8 +6,4 @@ public class UserExistsException extends RuntimeException {
         super(message);
     }
 
-    public UserExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
 }

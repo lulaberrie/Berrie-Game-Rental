@@ -1,5 +1,6 @@
 package com.berrie.gamerental.model;
 
+import com.berrie.gamerental.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

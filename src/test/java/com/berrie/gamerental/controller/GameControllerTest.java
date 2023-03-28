@@ -1,11 +1,14 @@
 package com.berrie.gamerental.controller;
 
+import com.berrie.gamerental.dto.GameModel;
+import com.berrie.gamerental.dto.GetGamesRequest;
 import com.berrie.gamerental.dto.SubmitGameRequest;
 import com.berrie.gamerental.dto.SubmitGameResponse;
+import com.berrie.gamerental.exception.NoGamesFoundException;
 import com.berrie.gamerental.model.Game;
+import com.berrie.gamerental.model.enums.SortBy;
 import com.berrie.gamerental.service.GameService;
 import com.berrie.gamerental.service.JwtAuthService;
-import com.berrie.gamerental.util.ModelMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,11 +18,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static com.berrie.gamerental.model.Genre.*;
-import static com.berrie.gamerental.model.Platform.*;
+import java.util.List;
+
+import static com.berrie.gamerental.model.enums.GameStatus.AVAILABLE;
+import static com.berrie.gamerental.model.enums.Genre.*;
+import static com.berrie.gamerental.model.enums.Platform.*;
+import static com.berrie.gamerental.model.enums.SortBy.POPULARITY;
+import static com.berrie.gamerental.model.enums.SortBy.TITLE;
+import static com.berrie.gamerental.util.ModelMapper.toGetGamesResponse;
 import static com.berrie.gamerental.util.ModelMapper.toJson;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class GameControllerTest {
 
     private static final String SUBMIT_URI = "/api/games/submit";
+    private static final String GET_GAMES_URI = "/api/games";
     private static final String AUTH_HEADER_NAME = "Authorization";
     private static final String TOKEN = "Bearer test.token";
     private static final String TRIMMED_TOKEN = "test.token";
@@ -42,17 +53,17 @@ public class GameControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(gameController)
                 .setControllerAdvice(new ExceptionHandlerController())
                 .build();
     }
 
     @Test
-    public void submitGame_validRequest_submitsGame() throws Exception {
+    void submitGame_validRequest_submitsGame() throws Exception {
         // given
         SubmitGameRequest request = new SubmitGameRequest("Minecraft", SIMULATION, PC);
-        String jsonResponse = toJsonSubmitGameResponse(request);
+        String jsonResponse = toJson(buildSubmitGameResponse(request));
         Game game = fromSubmitGameRequest(request);
 
         when(jwtAuthService.extractUsername(TRIMMED_TOKEN)).thenReturn(USERNAME);
@@ -70,7 +81,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void submitGame_nullTitle_badRequest() throws Exception {
+    void submitGame_nullTitle_badRequest() throws Exception {
         // given
         SubmitGameRequest request = new SubmitGameRequest(null, ACTION, PS4);
 
@@ -85,7 +96,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void submitGame_emptyTitle_badRequest() throws Exception {
+    void submitGame_emptyTitle_badRequest() throws Exception {
         // given
         SubmitGameRequest request = new SubmitGameRequest(" ", RPG, XBOX_ONE);
 
@@ -100,7 +111,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void submitGame_invalidTitle_badRequest() throws Exception {
+    void submitGame_invalidTitle_badRequest() throws Exception {
         // given
         SubmitGameRequest request = new SubmitGameRequest(" K", BATTLE_ROYAL, NINTENDO_SWITCH);
 
@@ -115,7 +126,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void submitGame_nullGenre_badRequest() throws Exception {
+    void submitGame_nullGenre_badRequest() throws Exception {
         // given
         SubmitGameRequest request = new SubmitGameRequest("Grand Theft Auto", null, XBOX_360);
 
@@ -130,7 +141,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void submitGame_nullPlatform_badRequest() throws Exception {
+    void submitGame_nullPlatform_badRequest() throws Exception {
         // given
         SubmitGameRequest request = new SubmitGameRequest("Tomb Raider", SHOOTER, null);
 
@@ -144,13 +155,77 @@ public class GameControllerTest {
         verifyNoInteractions(gameService);
     }
 
-    private String toJsonSubmitGameResponse(SubmitGameRequest request) throws Exception {
-        return ModelMapper.toJson(
-                SubmitGameResponse.builder()
-                        .title(request.getTitle())
-                        .genre(request.getGenre())
-                        .platform(request.getPlatform())
-                        .build());
+    @Test
+    void getGames_sortedByPopularity_returnsGames() throws Exception {
+        // given
+        GetGamesRequest request = new GetGamesRequest(POPULARITY);
+        List<GameModel> gameModels = buildGameModels(POPULARITY);
+        String jsonResponse = toJson(toGetGamesResponse(gameModels));
+
+        when(gameService.getGames(request)).thenReturn(gameModels);
+
+        // when & then
+        mockMvc.perform(get(GET_GAMES_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonResponse));
+
+        verify(gameService, times(1)).getGames(request);
+    }
+
+    @Test
+    void getGames_sortedByTitle_returnsGames() throws Exception {
+        // given
+        GetGamesRequest request = new GetGamesRequest(TITLE);
+        List<GameModel> gameModels = buildGameModels(TITLE);
+        String jsonResponse = toJson(toGetGamesResponse(gameModels));
+
+        when(gameService.getGames(request)).thenReturn(gameModels);
+
+        // when & then
+        mockMvc.perform(get(GET_GAMES_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonResponse));
+
+        verify(gameService, times(1)).getGames(request);
+    }
+
+    @Test
+    void getGames_nullSortBy_badRequest() throws Exception {
+        // given
+        GetGamesRequest request = new GetGamesRequest(null);
+
+        // when & then
+        mockMvc.perform(get(GET_GAMES_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(gameService);
+    }
+
+    @Test
+    void getGames_noGames_notFound() throws Exception {
+        // given
+        GetGamesRequest request = new GetGamesRequest(POPULARITY);
+        when(gameService.getGames(request)).thenThrow(new NoGamesFoundException("out of stock"));
+
+        // when & then
+        mockMvc.perform(get(GET_GAMES_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    private SubmitGameResponse buildSubmitGameResponse(SubmitGameRequest request) throws Exception {
+        return SubmitGameResponse.builder()
+                .title(request.getTitle())
+                .genre(request.getGenre())
+                .platform(request.getPlatform())
+                .build();
     }
 
     private Game fromSubmitGameRequest(SubmitGameRequest request) {
@@ -158,6 +233,26 @@ public class GameControllerTest {
                 .title(request.getTitle())
                 .genre(request.getGenre())
                 .platform(request.getPlatform())
+                .build();
+    }
+
+    private List<GameModel> buildGameModels(SortBy sortBy) {
+        GameModel game1 = buildGameModel("Uncharted", 15);
+        GameModel game2 = buildGameModel("Horizon", 8);
+        GameModel game3 = buildGameModel("Returnal", 3);
+
+        return sortBy == SortBy.TITLE ?
+                List.of(game2, game3, game1) : List.of(game1, game2, game3);
+    }
+
+    private GameModel buildGameModel(String title, Integer numberOfRentals) {
+        return GameModel.builder()
+                .title(title)
+                .genre(ADVENTURE)
+                .platform(PS5)
+                .status(AVAILABLE)
+                .numberOfRentals(numberOfRentals)
+                .submittedBy(USERNAME)
                 .build();
     }
 }

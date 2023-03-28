@@ -41,7 +41,7 @@ public class AuthenticationControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(authenticationController)
                 .setControllerAdvice(new ExceptionHandlerController())
                 .build();
@@ -53,7 +53,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void createUser_validRequest_createsUserWithToken() throws Exception {
+    void createUser_validRequest_createsUserWithToken() throws Exception {
         // given
         String jsonResponse = ModelMapper.toJson(
                 AuthenticationResponse.builder()
@@ -74,7 +74,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void createUser_nullUsername_badRequest() throws Exception {
+    void createUser_nullUsername_badRequest() throws Exception {
         // given
         request.setUsername(null);
 
@@ -88,7 +88,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void createUser_invalidUsername_badRequest() throws Exception {
+    void createUser_invalidUsername_badRequest() throws Exception {
         // given
         request.setUsername(INVALID_USERNAME);
 
@@ -102,7 +102,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void createUser_userExists_conflict() throws Exception {
+    void createUser_userExists_conflict() throws Exception {
         // given
         when(authenticationService.createUser(request)).thenThrow(new UserExistsException("User already exists"));
 
@@ -114,7 +114,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void authenticateUser_validRequest_authenticatesUserWithToken() throws Exception {
+    void authenticateUser_validRequest_authenticatesUserWithToken() throws Exception {
         // given
         String jsonResponse = ModelMapper.toJson(
                 AuthenticationResponse.builder()
@@ -135,7 +135,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void authenticateUser_nullPassword_badRequest() throws Exception {
+    void authenticateUser_nullPassword_badRequest() throws Exception {
         // given
         request.setPassword(null);
 
@@ -149,7 +149,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void authenticateUser_invalidPassword_badRequest() throws Exception {
+    void authenticateUser_invalidPassword_badRequest() throws Exception {
         // given
         request.setPassword(INVALID_PASSWORD);
 
@@ -163,7 +163,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    public void authenticateUser_IncorrectUsernameOrPassword_unauthorized() throws Exception {
+    void authenticateUser_IncorrectUsernameOrPassword_unauthorized() throws Exception {
         // given
         when(authenticationService.authenticateUser(request)).thenThrow(new UserUnauthorizedException("User unauthorized"));
 

@@ -1,7 +1,6 @@
 package com.berrie.gamerental.controller;
 
-import com.berrie.gamerental.dto.SubmitGameRequest;
-import com.berrie.gamerental.dto.SubmitGameResponse;
+import com.berrie.gamerental.dto.*;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.service.GameService;
 import com.berrie.gamerental.service.JwtAuthService;
@@ -12,8 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static com.berrie.gamerental.util.ModelMapper.toSubmitGameResponse;
-import static com.berrie.gamerental.util.ModelMapper.trimToken;
+import java.util.List;
+
+import static com.berrie.gamerental.util.ModelMapper.*;
 
 @Validated
 @RestController
@@ -24,6 +24,12 @@ public class GameController {
     private GameService gameService;
     @Autowired
     private JwtAuthService jwtAuthService;
+
+    @GetMapping("")
+    public ResponseEntity<GetGamesResponse> getGames(@Valid @RequestBody GetGamesRequest request) {
+        List<GameModel> games = gameService.getGames(request);
+        return new ResponseEntity<>(toGetGamesResponse(games), HttpStatus.OK);
+    }
 
     @PostMapping("/submit")
     public ResponseEntity<SubmitGameResponse> submitGame(@Valid @RequestBody SubmitGameRequest request,
