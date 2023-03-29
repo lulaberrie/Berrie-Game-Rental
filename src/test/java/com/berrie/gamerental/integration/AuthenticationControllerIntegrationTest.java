@@ -30,7 +30,7 @@ public class AuthenticationControllerIntegrationTest {
 
     private static final String CREATE_URI = "/api/auth/create";
     private static final String AUTHENTICATE_URI = "/api/auth/authenticate";
-    private static final String VALID_USERNAME = "berrieUser";
+    private static final String VALID_USERNAME = "berrie.user";
     private static final String VALID_PASSWORD = "pass1234";
     private static final MediaType APPLICATION_JSON = MediaType.APPLICATION_JSON;
 
@@ -64,7 +64,7 @@ public class AuthenticationControllerIntegrationTest {
     @Test
     void createUser_userExists_doesNotCreateUser() throws Exception {
         // given
-        String berrieUser = "berrieUserTwo";
+        String berrieUser = "user.two";
         AuthenticationRequest request = AuthenticationRequest.builder()
                 .username(berrieUser)
                 .password(VALID_PASSWORD)
@@ -92,7 +92,7 @@ public class AuthenticationControllerIntegrationTest {
     @Test
     void authenticateUser_validRequest_authenticatesUser() throws Exception {
         // given
-        String berrieUser = "berrieUserThree";
+        String berrieUser = "user.three";
         AuthenticationRequest request = AuthenticationRequest.builder()
                 .username(berrieUser)
                 .password(VALID_PASSWORD)
@@ -120,7 +120,7 @@ public class AuthenticationControllerIntegrationTest {
     @Test
     void authenticateUser_userDoesNotExist_doesNotAuthenticateUser() throws Exception {
         // given
-        String berrieUser = "berrieUserFour";
+        String berrieUser = "user.four";
         AuthenticationRequest request = AuthenticationRequest.builder()
                 .username(berrieUser)
                 .password(VALID_PASSWORD)
@@ -141,7 +141,7 @@ public class AuthenticationControllerIntegrationTest {
     @Test
     void authenticateUser_existingUserIncorrectPassword_doesNotAuthenticateUser() throws Exception {
         // given
-        String berrieUser = "berrieUserFive";
+        String berrieUser = "user.five";
         AuthenticationRequest request = AuthenticationRequest.builder()
                 .username(berrieUser)
                 .password(VALID_PASSWORD)

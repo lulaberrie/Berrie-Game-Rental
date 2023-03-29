@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTest {
 
-    private static final String USERNAME = "berrieUser";
+    private static final String USERNAME = "berrie.user";
     private static final String PASSWORD = "pass.word";
     private static final String TOKEN = "test.token";
     private static final String ENCODED_PASSWORD = "encoded.password";

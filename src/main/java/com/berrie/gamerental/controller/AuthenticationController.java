@@ -23,12 +23,22 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    /**
+     * Creates a new user account based on the provided authentication request parameters.
+     * @param request the request containing the parameters for creating the user account
+     * @return a ResponseEntity containing the JSON web token for the newly created user
+     */
     @PostMapping("/create")
     public ResponseEntity<AuthenticationResponse> createUser(@Valid @RequestBody AuthenticationRequest request) {
         String jsonWebToken = authenticationService.createUser(request);
         return new ResponseEntity<>(toAuthenticationResponse(jsonWebToken), HttpStatus.CREATED);
     }
 
+    /**
+     * Authenticates an existing user based on the provided authentication request parameters.
+     * @param request the request containing the parameters for authenticating the user
+     * @return a ResponseEntity containing the JSON web token for the authenticated user
+     */
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticateUser(@Valid @RequestBody AuthenticationRequest request) {
         String jsonWebToken = authenticationService.authenticateUser(request);

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class JwtAuthServiceTest {
 
-    private static final String USERNAME = "berrieUser";
+    private static final String USERNAME = "berrie.user";
     private static final String SECRET_KEY = "5468576D5A7134743777217A25432A462D4A614E645267556B58703272357538";
 
     @Mock

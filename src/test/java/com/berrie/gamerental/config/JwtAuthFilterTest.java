@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 public class JwtAuthFilterTest {
 
     private static final String AUTH_HEADER_NAME = "Authorization";
-    private static final String USERNAME = "berrieUser";
+    private static final String USERNAME = "berrie.user";
     private static final String PASSWORD = "password";
 
     @Mock
