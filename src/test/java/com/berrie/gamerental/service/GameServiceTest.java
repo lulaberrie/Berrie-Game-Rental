@@ -82,7 +82,9 @@ public class GameServiceTest {
 
         // then
         assertThat(result).hasSize(3);
-        assertGameModel(result.get(1), gameList.get(1));
+        GameModel actual = result.get(1);
+        Game expected = gameList.get(1);
+        assertGameModel(actual, expected);
         verify(gameRepository, never()).findAllByOrderByTitleAsc();
     }
 
@@ -99,7 +101,9 @@ public class GameServiceTest {
 
         // then
         assertThat(result).hasSize(3);
-        assertGameModel(result.get(2), gameList.get(2));
+        GameModel actual = result.get(2);
+        Game expected = gameList.get(2);
+        assertGameModel(actual, expected);
         verify(gameRepository, never()).findAllByOrderByNumberOfRentalsDesc();
     }
 
@@ -129,7 +133,9 @@ public class GameServiceTest {
         // then
         verify(mongoTemplate).find(any(TextQuery.class), eq(Game.class));
         assertThat(result).hasSize(2);
-        assertGameModel(result.get(0), gameMatches.get(0));
+        GameModel actual = result.get(0);
+        Game expected = gameMatches.get(0);
+        assertGameModel(actual, expected);
     }
 
     @Test
@@ -153,9 +159,9 @@ public class GameServiceTest {
         // then
         ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
         verify(gameRepository).save(captor.capture());
-        game.setStatus(UNAVAILABLE);
-        game.setNumberOfRentals(1);
-        assertThat(captor.getValue()).isEqualTo(game);
+        assertThat(captor.getValue()).isEqualTo(result);
+        assertThat(result.getNumberOfRentals()).isEqualTo(1);
+        assertThat(result.getStatus()).isEqualTo(UNAVAILABLE);
     }
 
     private void assertGame(Game game) {

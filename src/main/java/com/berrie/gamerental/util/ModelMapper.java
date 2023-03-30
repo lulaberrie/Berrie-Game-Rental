@@ -3,6 +3,7 @@ package com.berrie.gamerental.util;
 import com.berrie.gamerental.dto.*;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.Rental;
+import com.berrie.gamerental.model.enums.RentalStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class ModelMapper {
 
@@ -42,10 +42,16 @@ public class ModelMapper {
                 .build();
     }
 
+    public static GetRentalsResponse toGetRentalsResponse(List<RentalModel> rentalModelList) {
+        return GetRentalsResponse.builder()
+                .rentals(rentalModelList)
+                .build();
+    }
+
     public static List<GameModel> toGameModelList(List<Game> gameList) {
         return gameList.stream()
                 .map(ModelMapper::toGameModel)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static GameModel toGameModel(Game game) {
@@ -57,6 +63,27 @@ public class ModelMapper {
                 .numberOfRentals(game.getNumberOfRentals())
                 .submittedBy(game.getSubmittedBy().getUsername())
                 .build();
+    }
+
+    public static List<RentalModel> toRentalModelList(List<Rental> rentalList) {
+        return rentalList.stream()
+                .map(ModelMapper::toRentalModel)
+                .toList();
+    }
+
+    public static RentalModel toRentalModel(Rental rental) {
+        Game game = rental.getGame();
+        RentalModel rentalModel = RentalModel.builder()
+                .rentalStatus(rental.getRentalStatus())
+                .gameTitle(game.getTitle())
+                .gameGenre(game.getGenre())
+                .gamePlatform(game.getPlatform())
+                .dateRented(dateToPrettyString(rental.getRentalDate()))
+                .build();
+        if (rental.getRentalStatus() == RentalStatus.RETURNED) {
+            rentalModel.setDateReturned(dateToPrettyString(rental.getReturnDate()));
+        }
+        return rentalModel;
     }
 
     public static String trimToken(String jsonWebToken) {

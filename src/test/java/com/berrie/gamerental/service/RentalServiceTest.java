@@ -1,13 +1,18 @@
 package com.berrie.gamerental.service;
 
+import com.berrie.gamerental.dto.GetRentalsRequest;
 import com.berrie.gamerental.dto.RentGameRequest;
+import com.berrie.gamerental.dto.RentalModel;
 import com.berrie.gamerental.exception.GameRentedException;
 import com.berrie.gamerental.exception.GameSubmissionException;
 import com.berrie.gamerental.exception.NoGamesFoundException;
+import com.berrie.gamerental.exception.NoRentalsFoundException;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.Rental;
 import com.berrie.gamerental.model.User;
 import com.berrie.gamerental.model.enums.GameStatus;
+import com.berrie.gamerental.model.enums.Genre;
+import com.berrie.gamerental.model.enums.Platform;
 import com.berrie.gamerental.model.enums.RentalStatus;
 import com.berrie.gamerental.repository.RentalRepository;
 import org.junit.jupiter.api.Test;
@@ -17,8 +22,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+import static com.berrie.gamerental.model.enums.RentalStatus.ACTIVE;
+import static com.berrie.gamerental.model.enums.RentalStatus.RETURNED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -29,7 +40,7 @@ public class RentalServiceTest {
 
     private static final String USERNAME = "berrie.user";
     private static final String OTHER_USER = "user.ale";
-    private static final String GAME_ID = "12345678";
+    private static final String GAME_ID = "12345678";;
 
 
     @Mock
@@ -100,11 +111,76 @@ public class RentalServiceTest {
         assertThatThrownBy(() -> rentalService.rentGame(request, USERNAME)).isInstanceOf(GameRentedException.class);
     }
 
+    @Test
+    void getRentals_activeRentals_returnsRentalModels() {
+        // given
+        GetRentalsRequest request = new GetRentalsRequest(ACTIVE);
+        List<Rental> rentalList = buildRentalList(ACTIVE);
+
+        when(authService.findUserByUsername(USERNAME)).thenReturn(Optional.of(buildUser(USERNAME)));
+        when(rentalRepository.findByUserAndRentalStatusOrderByRentalDateDesc(buildUser(USERNAME), ACTIVE))
+                .thenReturn(rentalList);
+
+        // when
+        List<RentalModel> result = rentalService.getRentals(request, USERNAME);
+
+        // then
+        assertThat(result).hasSize(2);
+        RentalModel actual = result.get(0);
+        Rental expected = rentalList.get(0);
+        assertRentalModel(actual, expected);
+        assertThat(actual.getDateReturned()).isNull();
+    }
+
+    @Test
+    void getRentals_pastRentals_returnsRentalModels() {
+        // given
+        GetRentalsRequest request = new GetRentalsRequest(RETURNED);
+        List<Rental> rentalList = buildRentalList(RETURNED);
+
+        when(authService.findUserByUsername(USERNAME)).thenReturn(Optional.of(buildUser(USERNAME)));
+        when(rentalRepository.findByUserAndRentalStatusOrderByRentalDateDesc(buildUser(USERNAME), RETURNED))
+                .thenReturn(rentalList);
+
+        // when
+        List<RentalModel> result = rentalService.getRentals(request, USERNAME);
+
+        // then
+        assertThat(result).hasSize(2);
+        RentalModel actual = result.get(0);
+        Rental expected = rentalList.get(0);
+        assertRentalModel(actual, expected);
+        assertThat(actual.getDateReturned()).isNotNull();
+    }
+
+    @Test
+    void getRentals_noRentalsFound_throwsNoRentalsFoundException() {
+        // given
+        GetRentalsRequest request = new GetRentalsRequest(ACTIVE);
+
+        when(authService.findUserByUsername(USERNAME)).thenReturn(Optional.of(buildUser(USERNAME)));
+        when(rentalRepository.findByUserAndRentalStatusOrderByRentalDateDesc(buildUser(USERNAME), ACTIVE))
+                .thenReturn(new ArrayList<>());
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.getRentals(request, USERNAME))
+                .isInstanceOf(NoRentalsFoundException.class);
+    }
+
     private void assertRental(Rental rental) {
-        assertThat(rental.getRentalStatus()).isEqualTo(RentalStatus.ACTIVE);
+        assertThat(rental.getRentalStatus()).isEqualTo(ACTIVE);
         assertThat(rental.getRentalDate()).isNotNull();
         assertThat(rental.getUser()).isEqualTo(buildUser(USERNAME));
         assertThat(rental.getGame()).isEqualTo(buildGame(1, GameStatus.UNAVAILABLE, OTHER_USER));
+    }
+
+    private void assertRentalModel(RentalModel actual, Rental expected) {
+        Game expectedGame = expected.getGame();
+        assertThat(actual.getRentalStatus()).isEqualTo(expected.getRentalStatus());
+        assertThat(actual.getGameTitle()).isEqualTo(expectedGame.getTitle());
+        assertThat(actual.getGameGenre()).isEqualTo(expectedGame.getGenre());
+        assertThat(actual.getGamePlatform()).isEqualTo(expectedGame.getPlatform());
+        assertThat(actual.getDateRented()).isNotNull();
     }
 
     private User buildUser(String username) {
@@ -121,5 +197,32 @@ public class RentalServiceTest {
                 .status(status)
                 .submittedBy(buildUser(submittedBy))
                 .build();
+    }
+
+    private Game buildGame(String title, Genre genre, Platform platform) {
+        return Game.builder()
+                .title(title)
+                .genre(genre)
+                .platform(platform)
+                .build();
+    }
+
+    private List<Rental> buildRentalList(RentalStatus rentalStatus) {
+        Rental rental1 = buildRental(rentalStatus);
+        rental1.setGame(buildGame("UFC", Genre.SPORTS, Platform.PC));
+        Rental rental2 = buildRental(rentalStatus);
+        rental2.setGame(buildGame("COD", Genre.SHOOTER, Platform.PS5));
+        return List.of(rental1, rental2);
+    }
+
+    private Rental buildRental(RentalStatus rentalStatus) {
+        Rental rental = Rental.builder()
+                .rentalStatus(rentalStatus)
+                .rentalDate(new Date())
+                .build();
+        if (rentalStatus == RETURNED) {
+            rental.setReturnDate(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(2)));
+        }
+        return rental;
     }
 }

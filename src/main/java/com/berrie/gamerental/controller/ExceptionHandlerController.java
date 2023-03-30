@@ -38,14 +38,19 @@ public class ExceptionHandlerController {
         return ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST, String.valueOf(errorMessages)).build();
     }
 
+    @ExceptionHandler(GameSubmissionException.class)
+    public ErrorResponse handleGameSubmissionException(GameSubmissionException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST, ex.getMessage()).build();
+    }
+
     @ExceptionHandler(UserExistsException.class)
     public ErrorResponse handleUserExistsException(UserExistsException ex) {
         return ErrorResponse.builder(ex, HttpStatus.CONFLICT, ex.getMessage()).build();
     }
 
-    @ExceptionHandler(UserUnauthorizedException.class)
-    public ErrorResponse handleUserUnauthorizedException(UserUnauthorizedException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED, ex.getMessage()).build();
+    @ExceptionHandler(GameRentedException.class)
+    public ErrorResponse handleGameRentedException(GameRentedException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.CONFLICT, ex.getMessage()).build();
     }
 
     @ExceptionHandler(NoGamesFoundException.class)
@@ -53,13 +58,13 @@ public class ExceptionHandlerController {
         return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
     }
 
-    @ExceptionHandler(GameSubmissionException.class)
-    public ErrorResponse handleGameSubmissionException(GameSubmissionException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST, ex.getMessage()).build();
+    @ExceptionHandler(NoRentalsFoundException.class)
+    public ErrorResponse handleNoRentalsFoundException(NoRentalsFoundException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
     }
 
-    @ExceptionHandler(GameRentedException.class)
-    public ErrorResponse handleGameRentedException(GameRentedException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.CONFLICT, ex.getMessage()).build();
+    @ExceptionHandler(UserUnauthorizedException.class)
+    public ErrorResponse handleUserUnauthorizedException(UserUnauthorizedException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED, ex.getMessage()).build();
     }
 }

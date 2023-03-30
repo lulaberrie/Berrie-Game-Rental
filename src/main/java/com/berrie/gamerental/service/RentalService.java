@@ -1,9 +1,12 @@
 package com.berrie.gamerental.service;
 
+import com.berrie.gamerental.dto.GetRentalsRequest;
 import com.berrie.gamerental.dto.RentGameRequest;
-import com.berrie.gamerental.exception.GameSubmissionException;
+import com.berrie.gamerental.dto.RentalModel;
 import com.berrie.gamerental.exception.GameRentedException;
+import com.berrie.gamerental.exception.GameSubmissionException;
 import com.berrie.gamerental.exception.NoGamesFoundException;
+import com.berrie.gamerental.exception.NoRentalsFoundException;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.Rental;
 import com.berrie.gamerental.model.User;
@@ -16,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+
+import static com.berrie.gamerental.util.ModelMapper.toRentalModelList;
 
 @Slf4j
 @Service
@@ -71,5 +77,30 @@ public class RentalService {
         rentalRepository.save(rental);
         log.info("User {} successfully rented {}", username, game.getTitle());
         return rental;
+    }
+
+    /**
+     * Retrieves a list of rentals for a given user according to the specified rental status.
+     * @param request {@link GetRentalsRequest} object containing the rental status to filter by.
+     * @param username the username of the user whose rentals are being retrieved.
+     * @return list of {@link RentalModel} objects sorted in descending order of the rental date.
+     * @throws NoRentalsFoundException if no rental records were found.
+     */
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public List<RentalModel> getRentals(GetRentalsRequest request, String username) {
+        final RentalStatus rentalStatus = request.getRentalStatus();
+        log.info("Fetching {} rentals for user {}", rentalStatus.toString().toLowerCase(), username);
+
+        User user = authService.findUserByUsername(username).get();
+        List<Rental> rentalList = rentalRepository.findByUserAndRentalStatusOrderByRentalDateDesc(user, rentalStatus);
+
+        if (rentalList.isEmpty()) {
+            log.error("no rental records were found for user {}", username);
+            String state = rentalStatus == RentalStatus.ACTIVE ? "active" : "past";
+            throw new NoRentalsFoundException(String.format("Looks like you don't have any %s rentals.", state));
+        }
+
+        log.info("Returning {} {} rentals for {}", rentalList.size(), rentalStatus, username);
+        return toRentalModelList(rentalList);
     }
 }

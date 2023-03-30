@@ -30,7 +30,7 @@ public class GameController {
     private JwtAuthService jwtAuthService;
 
     /**
-     * Retrieves a list of games based on the provided request parameters.
+     * Retrieves a list of games based on the provided sort parameter.
      * @param request the request containing the parameters for the game retrieval
      * @return a ResponseEntity containing the list of games
      */
