@@ -153,8 +153,9 @@ public class GameServiceTest {
         // then
         ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
         verify(gameRepository).save(captor.capture());
-        assertThat(result.getNumberOfRentals()).isEqualTo(1);
-        assertThat(result.getStatus()).isEqualTo(UNAVAILABLE);
+        game.setStatus(UNAVAILABLE);
+        game.setNumberOfRentals(1);
+        assertThat(captor.getValue()).isEqualTo(game);
     }
 
     private void assertGame(Game game) {
