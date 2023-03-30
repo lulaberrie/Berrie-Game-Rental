@@ -120,4 +120,9 @@ public class GameService {
         gameRepository.save(game);
         return game;
     }
+
+    public void returnGameCopy(Game game) {
+        game.setStatus(GameStatus.AVAILABLE);
+        gameRepository.save(game);
+    }
 }

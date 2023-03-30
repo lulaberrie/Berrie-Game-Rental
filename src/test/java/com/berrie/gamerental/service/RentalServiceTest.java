@@ -3,10 +3,8 @@ package com.berrie.gamerental.service;
 import com.berrie.gamerental.dto.GetRentalsRequest;
 import com.berrie.gamerental.dto.RentGameRequest;
 import com.berrie.gamerental.dto.RentalModel;
-import com.berrie.gamerental.exception.GameRentedException;
-import com.berrie.gamerental.exception.GameSubmissionException;
-import com.berrie.gamerental.exception.NoGamesFoundException;
-import com.berrie.gamerental.exception.NoRentalsFoundException;
+import com.berrie.gamerental.dto.ReturnGameRequest;
+import com.berrie.gamerental.exception.*;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.Rental;
 import com.berrie.gamerental.model.User;
@@ -32,8 +30,7 @@ import static com.berrie.gamerental.model.enums.RentalStatus.ACTIVE;
 import static com.berrie.gamerental.model.enums.RentalStatus.RETURNED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RentalServiceTest {
@@ -41,6 +38,7 @@ public class RentalServiceTest {
     private static final String USERNAME = "berrie.user";
     private static final String OTHER_USER = "user.ale";
     private static final String GAME_ID = "12345678";;
+    private static final String RENTAL_ID = "87654321";
 
 
     @Mock
@@ -68,7 +66,7 @@ public class RentalServiceTest {
 
         // then
         ArgumentCaptor<Rental> captor = ArgumentCaptor.forClass(Rental.class);
-        verify(rentalRepository).save(captor.capture());
+        verify(rentalRepository).insert(captor.capture());
         Rental savedRental = captor.getValue();
         assertThat(result).isEqualTo(savedRental);
         assertRental(result);
@@ -165,6 +163,54 @@ public class RentalServiceTest {
         // when & then
         assertThatThrownBy(() -> rentalService.getRentals(request, USERNAME))
                 .isInstanceOf(NoRentalsFoundException.class);
+    }
+
+    @Test
+    void returnGame_validRequest_returnsGame() {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(RENTAL_ID);
+        Rental rental = buildRental(ACTIVE);
+        Game game = buildGame("Returnal", Genre.ADVENTURE, Platform.PS5);
+        rental.setUser(buildUser(USERNAME));
+        rental.setGame(game);
+
+        when(rentalRepository.findRentalById(RENTAL_ID)).thenReturn(Optional.of(rental));
+        doNothing().when(gameService).returnGameCopy(any(Game.class));
+
+        // when
+        rentalService.returnGame(request);
+
+        // then
+        ArgumentCaptor<Rental> captor = ArgumentCaptor.forClass(Rental.class);
+        verify(rentalRepository).findRentalById(RENTAL_ID);
+        verify(gameService).returnGameCopy(game);
+        verify(rentalRepository).save(captor.capture());
+        Rental result = captor.getValue();
+        assertThat(result.getReturnDate()).isNotNull();
+        assertThat(result.getRentalStatus()).isEqualTo(RETURNED);
+    }
+
+    @Test
+    void returnGame_noRentalFound_throwsNoRentalsFoundException() {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(RENTAL_ID);
+        when(rentalRepository.findRentalById(RENTAL_ID)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.returnGame(request)).isInstanceOf(NoRentalsFoundException.class);
+    }
+
+    @Test
+    void returnGame_gameAlreadyReturned_throwsGameReturnedException() {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(RENTAL_ID);
+        Rental rental = buildRental(RETURNED);
+        rental.setUser(buildUser(USERNAME));
+
+        when(rentalRepository.findRentalById(RENTAL_ID)).thenReturn(Optional.of(rental));
+
+        // when & then
+        assertThatThrownBy(() -> rentalService.returnGame(request)).isInstanceOf(GameReturnedException.class);
     }
 
     private void assertRental(Rental rental) {

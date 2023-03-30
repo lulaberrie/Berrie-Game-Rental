@@ -27,4 +27,5 @@ public class Rental {
     private Game game;
     private Date rentalDate;
     private Date returnDate;
+    private String rentedBy;
 }

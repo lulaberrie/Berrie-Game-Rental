@@ -43,23 +43,13 @@ public class ExceptionHandlerController {
         return ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST, ex.getMessage()).build();
     }
 
-    @ExceptionHandler(UserExistsException.class)
-    public ErrorResponse handleUserExistsException(UserExistsException ex) {
+    @ExceptionHandler({UserExistsException.class, GameRentedException.class, GameReturnedException.class})
+    public ErrorResponse handleConflictExceptions(Exception ex) {
         return ErrorResponse.builder(ex, HttpStatus.CONFLICT, ex.getMessage()).build();
     }
 
-    @ExceptionHandler(GameRentedException.class)
-    public ErrorResponse handleGameRentedException(GameRentedException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.CONFLICT, ex.getMessage()).build();
-    }
-
-    @ExceptionHandler(NoGamesFoundException.class)
-    public ErrorResponse handleNoGamesFoundException(NoGamesFoundException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
-    }
-
-    @ExceptionHandler(NoRentalsFoundException.class)
-    public ErrorResponse handleNoRentalsFoundException(NoRentalsFoundException ex) {
+    @ExceptionHandler({NoGamesFoundException.class, NoRentalsFoundException.class})
+    public ErrorResponse handleNotFoundExceptions(Exception ex) {
         return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
     }
 

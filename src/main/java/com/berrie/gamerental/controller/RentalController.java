@@ -50,4 +50,15 @@ public class RentalController {
         List<RentalModel> rentals = rentalService.getRentals(request, jwtAuthService.extractUsername(trimToken(token)));
         return new ResponseEntity<>(toGetRentalsResponse(rentals), HttpStatus.OK);
     }
+
+    /**
+     * Returns a game from a user based on the provided rental id parameter.
+     * @param request the request containing the parameters for the return
+     * @return a ResponseEntity containing the return information
+     */
+    @PutMapping("/return")
+    public ResponseEntity<Void> returnGame(@Valid @RequestBody ReturnGameRequest request) {
+        rentalService.returnGame(request);
+        return ResponseEntity.noContent().build();
+    }
 }
