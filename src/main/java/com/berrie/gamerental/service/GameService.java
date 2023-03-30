@@ -9,7 +9,6 @@ import com.berrie.gamerental.model.User;
 import com.berrie.gamerental.model.enums.GameStatus;
 import com.berrie.gamerental.model.enums.SortBy;
 import com.berrie.gamerental.repository.GameRepository;
-import com.berrie.gamerental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.berrie.gamerental.util.ModelMapper.toGameModelList;
 
@@ -31,7 +31,7 @@ public class GameService {
     @Autowired
     private final GameRepository gameRepository;
     @Autowired
-    private final UserRepository userRepository;
+    private final AuthenticationService authService;
     @Autowired
     private final MongoTemplate mongoTemplate;
 
@@ -46,7 +46,7 @@ public class GameService {
         final String title = request.getTitle();
         log.info("User {} submitting game {}", username, title);
 
-        User user = userRepository.findByUsername(username).get();
+        User user = authService.findUserByUsername(username).get();
         Game game = Game.builder()
                 .title(title)
                 .genre(request.getGenre())
@@ -106,5 +106,18 @@ public class GameService {
         }
         log.info("Returning {} games matches", gameMatches.size());
         return toGameModelList(gameMatches);
+    }
+
+    public Optional<Game> findGameById(String gameId) {
+        return gameRepository.findGameById(gameId);
+    }
+
+    public Game rentGameCopy(Game game) {
+        int numRentals = game.getNumberOfRentals();
+        numRentals++;
+        game.setNumberOfRentals(numRentals);
+        game.setStatus(GameStatus.UNAVAILABLE);
+        gameRepository.save(game);
+        return game;
     }
 }

@@ -1,14 +1,16 @@
 package com.berrie.gamerental.util;
 
-import com.berrie.gamerental.dto.AuthenticationResponse;
-import com.berrie.gamerental.dto.GameModel;
-import com.berrie.gamerental.dto.GetGamesResponse;
-import com.berrie.gamerental.dto.SubmitGameResponse;
+import com.berrie.gamerental.dto.*;
 import com.berrie.gamerental.model.Game;
+import com.berrie.gamerental.model.Rental;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class ModelMapper {
@@ -30,6 +32,13 @@ public class ModelMapper {
     public static GetGamesResponse toGetGamesResponse(List<GameModel> gameModelList) {
         return GetGamesResponse.builder()
                 .games(gameModelList)
+                .build();
+    }
+
+    public static RentGameResponse toRentGameResponse(Rental rental) {
+        return RentGameResponse.builder()
+                .gameTitle(rental.getGame().getTitle())
+                .dateRented(dateToPrettyString(rental.getRentalDate()))
                 .build();
     }
 
@@ -56,5 +65,13 @@ public class ModelMapper {
 
     public static String toJson(Object obj) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(obj);
+    }
+
+    private static String dateToPrettyString(Date date) {
+        DateTimeFormatter inputFormatter = DateTimeFormatter
+                .ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MMMM dd uuuu", Locale.ENGLISH);
+        ZonedDateTime zonedDateTime = ZonedDateTime.parse(date.toString(), inputFormatter);
+        return outputFormatter.format(zonedDateTime);
     }
 }

@@ -1,8 +1,6 @@
 package com.berrie.gamerental.controller;
 
-import com.berrie.gamerental.exception.NoGamesFoundException;
-import com.berrie.gamerental.exception.UserExistsException;
-import com.berrie.gamerental.exception.UserUnauthorizedException;
+import com.berrie.gamerental.exception.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Global exception handler controller for handling exceptions thrown by any controller in the application.
@@ -54,5 +51,15 @@ public class ExceptionHandlerController {
     @ExceptionHandler(NoGamesFoundException.class)
     public ErrorResponse handleNoGamesFoundException(NoGamesFoundException ex) {
         return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
+    }
+
+    @ExceptionHandler(GameSubmissionException.class)
+    public ErrorResponse handleGameSubmissionException(GameSubmissionException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST, ex.getMessage()).build();
+    }
+
+    @ExceptionHandler(GameRentedException.class)
+    public ErrorResponse handleGameRentedException(GameRentedException ex) {
+        return ErrorResponse.builder(ex, HttpStatus.CONFLICT, ex.getMessage()).build();
     }
 }

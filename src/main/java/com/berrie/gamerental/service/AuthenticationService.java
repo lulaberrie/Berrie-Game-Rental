@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -78,5 +79,9 @@ public class AuthenticationService {
         log.info("User with username {} successfully authenticated", username);
         User user = userRepository.findByUsername(username).get();
         return jwtAuthService.generateToken(user);
+    }
+
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }
