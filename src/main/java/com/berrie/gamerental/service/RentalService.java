@@ -3,10 +3,8 @@ package com.berrie.gamerental.service;
 import com.berrie.gamerental.dto.GetRentalsRequest;
 import com.berrie.gamerental.dto.RentGameRequest;
 import com.berrie.gamerental.dto.RentalModel;
-import com.berrie.gamerental.exception.GameRentedException;
-import com.berrie.gamerental.exception.GameSubmissionException;
-import com.berrie.gamerental.exception.NoGamesFoundException;
-import com.berrie.gamerental.exception.NoRentalsFoundException;
+import com.berrie.gamerental.dto.ReturnGameRequest;
+import com.berrie.gamerental.exception.*;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.Rental;
 import com.berrie.gamerental.model.User;
@@ -73,8 +71,9 @@ public class RentalService {
                 .build();
         rental.setUser(user);
         rental.setGame(game);
+        rental.setRentedBy(username);
 
-        rentalRepository.save(rental);
+        rentalRepository.insert(rental);
         log.info("User {} successfully rented {}", username, game.getTitle());
         return rental;
     }
@@ -102,5 +101,35 @@ public class RentalService {
 
         log.info("Returning {} {} rentals for {}", rentalList.size(), rentalStatus, username);
         return toRentalModelList(rentalList);
+    }
+
+    /**
+     * Returns a game rented by the returning user.
+     * @param request {@link ReturnGameRequest} object containing the rental id to be returned.
+     * @throws NoRentalsFoundException if no rental was found.
+     * @throws GameRentedException if the rental is in the returned status.
+     */
+    public void returnGame(ReturnGameRequest request) {
+        final String rentalId = request.getRentalId();
+        log.info("Returning rental {}", rentalId);
+
+        Optional<Rental> optionalRental = rentalRepository.findRentalById(rentalId);
+        if (optionalRental.isEmpty()) {
+            throw new NoRentalsFoundException(String.format("Rental with is %s was not found", rentalId));
+        }
+        Rental rental = optionalRental.get();
+        String username = rental.getUser().getUsername();
+
+        if (rental.getRentalStatus() == RentalStatus.RETURNED) {
+            log.error("{} tried to return a game they have already returned", username);
+            throw new GameReturnedException("This game has already been returned by you");
+        }
+        Game gameCopy = rental.getGame();
+        rental.setReturnDate(new Date());
+        rental.setRentalStatus(RentalStatus.RETURNED);
+
+        rentalRepository.save(rental);
+        gameService.returnGameCopy(gameCopy);
+        log.info("{} successfully returned by {}", gameCopy.getId(), username);
     }
 }

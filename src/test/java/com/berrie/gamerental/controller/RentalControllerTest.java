@@ -3,10 +3,8 @@ package com.berrie.gamerental.controller;
 import com.berrie.gamerental.dto.GetRentalsRequest;
 import com.berrie.gamerental.dto.RentGameRequest;
 import com.berrie.gamerental.dto.RentalModel;
-import com.berrie.gamerental.exception.GameRentedException;
-import com.berrie.gamerental.exception.GameSubmissionException;
-import com.berrie.gamerental.exception.NoGamesFoundException;
-import com.berrie.gamerental.exception.NoRentalsFoundException;
+import com.berrie.gamerental.dto.ReturnGameRequest;
+import com.berrie.gamerental.exception.*;
 import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.Rental;
 import com.berrie.gamerental.model.enums.RentalStatus;
@@ -30,8 +28,7 @@ import static com.berrie.gamerental.util.ModelMapper.toJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,10 +37,12 @@ public class RentalControllerTest {
 
     private static final String RENT_GAME_URI = "/api/rentals/rent";
     private static final String GET_RENTALS_URI = "/api/rentals";
+    private static final String RETURN_GAME_URI = "/api/rentals/return";
     private static final String AUTH_HEADER_NAME = "Authorization";
     private static final String TOKEN = "Bearer test.token";
     private static final String TRIMMED_TOKEN = "test.token";
     private static final String GAME_ID = "12345678";
+    private static final String RENTAL_ID = "87654321";
     private static final String USERNAME = "berrie.user";
 
     @Mock
@@ -221,6 +220,61 @@ public class RentalControllerTest {
                         .contentType(APPLICATION_JSON)
                         .content(toJson(request)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void returnGame_validRequest_returnsGame() throws Exception {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(RENTAL_ID);
+        doNothing().when(rentalService).returnGame(request);
+
+        // when & then
+        mockMvc.perform(put(RETURN_GAME_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isNoContent());
+
+        verify(rentalService, times(1)).returnGame(request);
+    }
+
+    @Test
+    void returnGame_nullRentalId_badRequest() throws Exception {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(null);
+
+        // when & then
+        mockMvc.perform(put(RETURN_GAME_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(rentalService);
+    }
+
+    @Test
+    void returnGame_noRentalFound_notFound() throws Exception {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(RENTAL_ID);
+        doThrow(new NoRentalsFoundException("no rentals found")).when(rentalService).returnGame(request);
+
+        // when & then
+        mockMvc.perform(put(RETURN_GAME_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void returnGame_gameAlreadyReturned_conflict() throws Exception {
+        // given
+        ReturnGameRequest request = new ReturnGameRequest(RENTAL_ID);
+        doThrow(new GameReturnedException("game already returned")).when(rentalService).returnGame(request);
+
+        // when & then
+        mockMvc.perform(put(RETURN_GAME_URI)
+                        .contentType(APPLICATION_JSON)
+                        .content(toJson(request)))
+                .andExpect(status().isConflict());
     }
 
     private Rental buildRental() {
