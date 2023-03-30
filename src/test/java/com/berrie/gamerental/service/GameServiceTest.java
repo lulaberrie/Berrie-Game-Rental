@@ -11,7 +11,6 @@ import com.berrie.gamerental.model.enums.Genre;
 import com.berrie.gamerental.model.enums.Platform;
 import com.berrie.gamerental.model.enums.SortBy;
 import com.berrie.gamerental.repository.GameRepository;
-import com.berrie.gamerental.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -27,8 +26,7 @@ import java.util.Optional;
 
 import static com.berrie.gamerental.model.enums.GameStatus.AVAILABLE;
 import static com.berrie.gamerental.model.enums.GameStatus.UNAVAILABLE;
-import static com.berrie.gamerental.model.enums.Genre.ADVENTURE;
-import static com.berrie.gamerental.model.enums.Genre.SPORTS;
+import static com.berrie.gamerental.model.enums.Genre.*;
 import static com.berrie.gamerental.model.enums.Platform.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,7 +40,7 @@ public class GameServiceTest {
     @Mock
     private GameRepository gameRepository;
     @Mock
-    private UserRepository userRepository;
+    private AuthenticationService authService;
     @Mock
     private MongoTemplate mongoTemplate;
     @InjectMocks
@@ -57,7 +55,7 @@ public class GameServiceTest {
                 .platform(Platform.PS5)
                 .build();
 
-        when(userRepository.findByUsername(USERNAME))
+        when(authService.findUserByUsername(USERNAME))
                 .thenReturn(Optional.of(buildUser()));
 
         // when
@@ -142,6 +140,21 @@ public class GameServiceTest {
 
         // when & then
         assertThatThrownBy(() -> gameService.searchGame(title)).isInstanceOf(NoGamesFoundException.class);
+    }
+
+    @Test
+    void rentGameCopy_withGame_returnsSavedGame() {
+        // given
+        Game game = buildGame("Spiderman", 0, ACTION, NINTENDO_SWITCH, AVAILABLE);
+
+        // when
+        Game result = gameService.rentGameCopy(game);
+
+        // then
+        ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
+        verify(gameRepository).save(captor.capture());
+        assertThat(result.getNumberOfRentals()).isEqualTo(1);
+        assertThat(result.getStatus()).isEqualTo(UNAVAILABLE);
     }
 
     private void assertGame(Game game) {
