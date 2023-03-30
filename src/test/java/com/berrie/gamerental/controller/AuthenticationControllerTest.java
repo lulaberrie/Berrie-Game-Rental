@@ -26,7 +26,7 @@ public class AuthenticationControllerTest {
 
     private static final String CREATE_URI = "/api/auth/create";
     private static final String AUTHENTICATE_URI = "/api/auth/authenticate";
-    private static final String VALID_USERNAME = "berrieUser";
+    private static final String VALID_USERNAME = "berrie.user";
     private static final String INVALID_USERNAME = "17-38";
     private static final String VALID_PASSWORD = "pass1234";
     private static final String INVALID_PASSWORD = "short";

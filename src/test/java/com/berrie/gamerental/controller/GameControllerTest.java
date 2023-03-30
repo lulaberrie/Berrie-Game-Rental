@@ -9,6 +9,7 @@ import com.berrie.gamerental.model.Game;
 import com.berrie.gamerental.model.enums.SortBy;
 import com.berrie.gamerental.service.GameService;
 import com.berrie.gamerental.service.JwtAuthService;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.berrie.gamerental.model.enums.GameStatus.AVAILABLE;
 import static com.berrie.gamerental.model.enums.Genre.*;
@@ -38,11 +40,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class GameControllerTest {
 
     private static final String SUBMIT_URI = "/api/games/submit";
+    private static final String SEARCH_GAME_URI = "/api/games/search";
     private static final String GET_GAMES_URI = "/api/games";
     private static final String AUTH_HEADER_NAME = "Authorization";
     private static final String TOKEN = "Bearer test.token";
     private static final String TRIMMED_TOKEN = "test.token";
-    private static final String USERNAME = "berrieUser";
+    private static final String USERNAME = "berrie.user";
 
     @Mock
     private GameService gameService;
@@ -220,6 +223,49 @@ public class GameControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void searchGame_validTitleWithMatches_returnsGames() throws Exception {
+        // given
+        String title = "horizon";
+        List<GameModel> gameMatches = List.of(buildGameModel("Horizon Zero Dawn", 2));
+        String jsonResponse = toJson(toGetGamesResponse(gameMatches));
+
+        when(gameService.searchGame(title)).thenReturn(gameMatches);
+
+        // when & then
+        mockMvc.perform(get(SEARCH_GAME_URI)
+                        .param("title", title))
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonResponse));
+
+        verify(gameService, times(1)).searchGame(title);
+    }
+
+    @Test
+    void searchGame_validTitleNoMatches_notFound() throws Exception {
+        // given
+        String title = "hogwarts legacy";
+        when(gameService.searchGame(title)).thenThrow(new NoGamesFoundException("no matches"));
+
+        // when & then
+        mockMvc.perform(get(SEARCH_GAME_URI)
+                        .param("title", title))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void searchGame_invalidTitle_badRequest() throws Exception {
+        // given
+        String title = "  gta v";
+        // in live mode, error is thrown before touching gameService
+        when(gameService.searchGame(title)).thenThrow(new ConstraintViolationException("title violation", Set.of()));
+
+        // when & then
+        mockMvc.perform(get(SEARCH_GAME_URI)
+                        .param("title", title))
+                .andExpect(status().isBadRequest());
+    }
+
     private SubmitGameResponse buildSubmitGameResponse(SubmitGameRequest request) throws Exception {
         return SubmitGameResponse.builder()
                 .title(request.getTitle())
@@ -238,7 +284,7 @@ public class GameControllerTest {
 
     private List<GameModel> buildGameModels(SortBy sortBy) {
         GameModel game1 = buildGameModel("Uncharted", 15);
-        GameModel game2 = buildGameModel("Horizon", 8);
+        GameModel game2 = buildGameModel("Horizon Zero Dawn", 8);
         GameModel game3 = buildGameModel("Returnal", 3);
 
         return sortBy == SortBy.TITLE ?

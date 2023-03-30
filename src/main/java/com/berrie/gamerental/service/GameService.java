@@ -13,6 +13,9 @@ import com.berrie.gamerental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +32,8 @@ public class GameService {
     private final GameRepository gameRepository;
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final MongoTemplate mongoTemplate;
 
     /**
      * Submits a new game with the provided details and username.
@@ -81,5 +86,25 @@ public class GameService {
 
         log.info("Returning {} games", gameList.size());
         return toGameModelList(gameList);
+    }
+
+    /**
+     * Searches the database for games matching ths provided title.
+     * @param title title to search for, may contain one or more words.
+     * @return list of {@link GameModel} objects matching the search criteria, sorted in descending order.
+     * @throws NoGamesFoundException if no matches are found.
+     */
+    public List<GameModel> searchGame(String title) {
+        log.info("searching for games matching the title {}", title);
+        TextCriteria criteria = TextCriteria.forDefaultLanguage().matchingAny(title.split("\\s+"));
+        TextQuery query = TextQuery.queryText(criteria).sortByScore();
+        List<Game> gameMatches = mongoTemplate.find(query, Game.class);
+
+        if (gameMatches.isEmpty()) {
+            log.error("no games were found for the title {}", title);
+            throw new NoGamesFoundException(String.format("No games found for %s try another!", title));
+        }
+        log.info("Returning {} games matches", gameMatches.size());
+        return toGameModelList(gameMatches);
     }
 }

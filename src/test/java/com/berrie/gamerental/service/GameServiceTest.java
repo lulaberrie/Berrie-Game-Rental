@@ -18,6 +18,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.TextQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +29,22 @@ import static com.berrie.gamerental.model.enums.GameStatus.AVAILABLE;
 import static com.berrie.gamerental.model.enums.GameStatus.UNAVAILABLE;
 import static com.berrie.gamerental.model.enums.Genre.ADVENTURE;
 import static com.berrie.gamerental.model.enums.Genre.SPORTS;
-import static com.berrie.gamerental.model.enums.Platform.PS5;
-import static com.berrie.gamerental.model.enums.Platform.XBOX_ONE;
+import static com.berrie.gamerental.model.enums.Platform.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
-    private static final String USERNAME = "berrieUser";
+    private static final String USERNAME = "berrie.user";
     private static final String TITLE = "FIFA 23";
 
     @Mock
     private GameRepository gameRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private MongoTemplate mongoTemplate;
     @InjectMocks
     private GameService gameService;
 
@@ -80,9 +83,8 @@ public class GameServiceTest {
         List<GameModel> result = gameService.getGames(request);
 
         // then
-        Game expectedGame = gameList.get(1);
-        GameModel gameModel = result.get(1);
-        assertGameModel(gameModel, expectedGame);
+        assertThat(result).hasSize(3);
+        assertGameModel(result.get(1), gameList.get(1));
         verify(gameRepository, never()).findAllByOrderByTitleAsc();
     }
 
@@ -98,9 +100,8 @@ public class GameServiceTest {
         List<GameModel> result = gameService.getGames(request);
 
         // then
-        Game expectedGame = gameList.get(2);
-        GameModel gameModel = result.get(2);
-        assertGameModel(gameModel, expectedGame);
+        assertThat(result).hasSize(3);
+        assertGameModel(result.get(2), gameList.get(2));
         verify(gameRepository, never()).findAllByOrderByNumberOfRentalsDesc();
     }
 
@@ -111,8 +112,36 @@ public class GameServiceTest {
         when(gameRepository.findAllByOrderByNumberOfRentalsDesc()).thenReturn(new ArrayList<>());
 
         // when & then
-        assertThatThrownBy(() -> gameService.getGames(request))
-                .isInstanceOf(NoGamesFoundException.class);
+        assertThatThrownBy(() -> gameService.getGames(request)).isInstanceOf(NoGamesFoundException.class);
+    }
+
+    @Test
+    void searchGame_titleWithMatches_returnsGameModels() {
+        // given
+        String title = "Horizon";
+        Game game1 = buildGame("Horizon Forest", 4, ADVENTURE, PS5, UNAVAILABLE);
+        Game game2 = buildGame("Horizon Zero Dawn", 6, ADVENTURE, PS4, AVAILABLE);
+        List<Game> gameMatches = List.of(game1, game2);
+
+        when(mongoTemplate.find(any(TextQuery.class), eq(Game.class))).thenReturn(gameMatches);
+
+        // when
+        List<GameModel> result = gameService.searchGame(title);
+
+        // then
+        verify(mongoTemplate).find(any(TextQuery.class), eq(Game.class));
+        assertThat(result).hasSize(2);
+        assertGameModel(result.get(0), gameMatches.get(0));
+    }
+
+    @Test
+    void searchGame_titleWithNoMatches_throwsNoGameFoundException() {
+        // given
+        String title = "Hogwarts Legacy";
+        when(mongoTemplate.find(any(TextQuery.class), eq(Game.class))).thenReturn(new ArrayList<>());
+
+        // when & then
+        assertThatThrownBy(() -> gameService.searchGame(title)).isInstanceOf(NoGamesFoundException.class);
     }
 
     private void assertGame(Game game) {

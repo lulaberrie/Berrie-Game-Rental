@@ -13,7 +13,8 @@ public class AuthenticationRequest {
 
     @NotNull(message = "Username cannot be blank")
     @Size(min = 4, max = 20, message = "Username must be between 4 and 20 characters")
-    @Pattern(regexp = "^[a-zA-Z]+$", message = "Username must consist of only letters")
+    @Pattern(regexp = "^[a-z]+(\\.[a-z]+)?$", message =
+            "Username must consist of only lowercase letters and a single dot")
     private String username;
 
     @NotNull(message = "Password cannot be blank")
