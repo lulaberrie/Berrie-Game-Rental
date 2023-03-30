@@ -115,7 +115,7 @@ public class RentalService {
 
         Optional<Rental> optionalRental = rentalRepository.findRentalById(rentalId);
         if (optionalRental.isEmpty()) {
-            throw new NoRentalsFoundException(String.format("Rental with is %s was not found", rentalId));
+            throw new NoRentalsFoundException(String.format("Rental with id %s was not found", rentalId));
         }
         Rental rental = optionalRental.get();
         String username = rental.getUser().getUsername();
