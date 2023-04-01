@@ -13,4 +13,5 @@ public interface GameRepository extends MongoRepository<Game, String> {
     List<Game> findAllByOrderByNumberOfRentalsDesc();
     List<Game> findAllByOrderByTitleAsc();
     Optional<Game> findGameById(String gameId);
+    Optional<Game> findByTitle(String title);
 }
