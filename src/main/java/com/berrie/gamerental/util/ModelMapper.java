@@ -94,6 +94,10 @@ public class ModelMapper {
         return new ObjectMapper().writeValueAsString(obj);
     }
 
+    public static <T> T fromJson(String json, Class<T> valueType) throws JsonProcessingException {
+        return new ObjectMapper().readValue(json, valueType);
+    }
+
     private static String dateToPrettyString(Date date) {
         DateTimeFormatter inputFormatter = DateTimeFormatter
                 .ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);

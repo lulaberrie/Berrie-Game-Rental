@@ -23,10 +23,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class AuthenticationControllerIntegrationTest {
+public class AuthenticationIntegrationTest {
 
     private static final String CREATE_URI = "/api/auth/create";
     private static final String AUTHENTICATE_URI = "/api/auth/authenticate";
