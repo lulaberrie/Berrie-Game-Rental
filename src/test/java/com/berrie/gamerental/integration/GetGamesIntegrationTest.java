@@ -10,10 +10,7 @@ import com.berrie.gamerental.model.enums.Genre;
 import com.berrie.gamerental.model.enums.Platform;
 import com.berrie.gamerental.model.enums.SortBy;
 import com.berrie.gamerental.repository.GameRepository;
-import com.berrie.gamerental.repository.UserRepository;
 import com.berrie.gamerental.util.ModelMapper;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.TypeRef;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +28,7 @@ import static com.berrie.gamerental.integration.TestUtil.deleteGames;
 import static com.berrie.gamerental.integration.TestUtil.getJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -43,8 +41,6 @@ public class GetGamesIntegrationTest {
     private MockMvc mockMvc;
     @Autowired
     private GameRepository gameRepository;
-    @Autowired
-    private UserRepository userRepository;
 
     @Test
     void getGames_sortedByPopularity_returnsGamesInOrder() throws Exception {
@@ -56,35 +52,42 @@ public class GetGamesIntegrationTest {
         MvcResult result = mockMvc.perform(get(GET_GAMES_URI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(ModelMapper.toJson(request)))
+                .andExpect(status().isOk())
                 .andReturn();
 
         // then
         List<GameModel> gameModels = ModelMapper.fromJson(getJson(result), GetGamesResponse.class).getGames();
+        assertThat(gameModels.size()).isGreaterThanOrEqualTo(3);
         GameModel game1 = gameModels.stream()
                 .filter(gameModel -> gameModel.getTitle().equals("GetGamesA"))
                 .toList()
                 .get(0);
         assertGameModel(game1);
-        List<Integer> numberOfRentalsList = JsonPath.read(getJson(result), "$[*].numberOfRentals");
-        assertThat(numberOfRentalsList).isSortedAccordingTo(Comparator.reverseOrder());
+        assertThat(gameModels).isSortedAccordingTo(Comparator.comparingInt(GameModel::getNumberOfRentals).reversed());
+
+        // clean up
         deleteGames(games, gameRepository);
     }
 
     @Test
     void getGames_sortedByTitle_returnsGamesInOrder() throws Exception {
         // given
-        GetGamesRequest request = new GetGamesRequest(SortBy.POPULARITY);
+        GetGamesRequest request = new GetGamesRequest(SortBy.TITLE);
         List<Game> games = setupGames("E", "F", "D");
 
         // when
         MvcResult result = mockMvc.perform(get(GET_GAMES_URI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(ModelMapper.toJson(request)))
+                .andExpect(status().isOk())
                 .andReturn();
 
         // then
-        List<Integer> numberOfRentalsList = JsonPath.read(getJson(result), "$[*].title");
-        assertThat(numberOfRentalsList).isSorted();
+        List<GameModel> gameModels = ModelMapper.fromJson(getJson(result), GetGamesResponse.class).getGames();
+        assertThat(gameModels.size()).isGreaterThanOrEqualTo(3);
+        assertThat(gameModels).isSortedAccordingTo(Comparator.comparing(GameModel::getTitle));
+
+        // clean up
         deleteGames(games, gameRepository);
     }
 
@@ -112,7 +115,9 @@ public class GetGamesIntegrationTest {
                 .platform(Platform.XBOX_ONE)
                 .status(GameStatus.AVAILABLE)
                 .numberOfRentals(numberOfRentals)
-                .submittedBy(User.builder().username("berrie.user").build())
+                .submittedBy(User.builder()
+                        .username("berrie.user")
+                        .build())
                 .build();
     }
 }

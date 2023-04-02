@@ -2,8 +2,13 @@ package com.berrie.gamerental.integration;
 
 import com.berrie.gamerental.dto.AuthenticationRequest;
 import com.berrie.gamerental.model.Game;
+import com.berrie.gamerental.model.Rental;
 import com.berrie.gamerental.model.User;
+import com.berrie.gamerental.model.enums.GameStatus;
+import com.berrie.gamerental.model.enums.Genre;
+import com.berrie.gamerental.model.enums.Platform;
 import com.berrie.gamerental.repository.GameRepository;
+import com.berrie.gamerental.repository.RentalRepository;
 import com.berrie.gamerental.repository.UserRepository;
 import com.berrie.gamerental.util.ModelMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -54,7 +59,26 @@ class TestUtil {
                 .forEach(title -> deleteGame(title, gameRepository));
     }
 
+    public static void deleteRental(String rentedBy, RentalRepository rentalRepository) {
+        Optional<Rental> rental = rentalRepository.findByRentedBy(rentedBy);
+        assertThat(rental).isPresent();
+        rentalRepository.delete(rental.get());
+    }
+
     public static String getJson(MvcResult mvcResult) throws Exception {
         return mvcResult.getResponse().getContentAsString();
+    }
+
+    public static Game buildGame(String title) {
+        return Game.builder()
+                .title(title)
+                .genre(Genre.RPG)
+                .platform(Platform.XBOX_360)
+                .status(GameStatus.AVAILABLE)
+                .numberOfRentals(15)
+                .submittedBy(User.builder()
+                        .username("berrie.user")
+                        .build())
+                .build();
     }
 }
