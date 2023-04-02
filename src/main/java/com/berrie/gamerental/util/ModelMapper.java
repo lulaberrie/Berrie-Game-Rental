@@ -98,7 +98,7 @@ public class ModelMapper {
         return new ObjectMapper().readValue(json, valueType);
     }
 
-    private static String dateToPrettyString(Date date) {
+    public static String dateToPrettyString(Date date) {
         DateTimeFormatter inputFormatter = DateTimeFormatter
                 .ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MMMM dd uuuu", Locale.ENGLISH);
