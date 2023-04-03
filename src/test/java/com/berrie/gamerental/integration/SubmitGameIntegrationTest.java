@@ -18,8 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Optional;
-
 import static com.berrie.gamerental.integration.TestUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -61,9 +59,8 @@ public class SubmitGameIntegrationTest {
         assertThat(response.getGenre()).isEqualTo(request.getGenre());
         assertThat(response.getPlatform()).isEqualTo(request.getPlatform());
 
-        Optional<Game> savedGame = gameRepository.findByTitle(title);
-        assertThat(savedGame).isPresent();
-        assertGame(savedGame.get(), request.getTitle(), request.getGenre(), request.getPlatform(), username);
+        Game savedGame = findGame(title, gameRepository);
+        assertGame(savedGame, request.getTitle(), request.getGenre(), request.getPlatform(), username);
 
         // clean up
         deleteUser(username, userRepository);

@@ -15,4 +15,5 @@ public interface RentalRepository extends MongoRepository<Rental, String> {
     List<Rental> findByUserAndRentalStatusOrderByRentalDateDesc(User user, RentalStatus rentalStatus);
     Optional<Rental> findRentalById(String rentalId);
     Optional<Rental> findByRentedBy(String rentedBy);
+    void deleteAllByRentedBy(String rentedBy);
 }
