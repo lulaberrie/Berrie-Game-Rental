@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Date;
-import java.util.Optional;
 
 import static com.berrie.gamerental.integration.TestUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +51,7 @@ public class RentGameIntegrationTest {
         String token = "Bearer " + createUser(renter, mockMvc), gameId = "test123456";
         Game game = buildGame("rentGameOne");
         game.setId(gameId);
-        gameRepository.save(game);
+        saveGame(game, gameRepository);
         String prettyDate = ModelMapper.dateToPrettyString(new Date());
         RentGameRequest request = new RentGameRequest(gameId);
 
@@ -70,9 +69,8 @@ public class RentGameIntegrationTest {
         assertThat(response.getGameTitle()).isEqualTo(game.getTitle());
         assertThat(response.getDateRented()).isEqualTo(prettyDate);
 
-        Optional<Rental> savedRental = rentalRepository.findByRentedBy(renter);
-        assertThat(savedRental).isPresent();
-        assertRental(savedRental.get(), renter, game);
+        Rental savedRental = findRental(renter, rentalRepository);
+        assertRental(savedRental, renter, game);
 
         // clean up
         deleteUser(renter, userRepository);
@@ -116,7 +114,7 @@ public class RentGameIntegrationTest {
         String token = "Bearer " + createUser(gameSubmittedBy, mockMvc), gameId = "test123456";
         Game game = buildGame("rentGameTwo");
         game.setId(gameId);
-        gameRepository.save(game);
+        saveGame(game, gameRepository);
         RentGameRequest request = new RentGameRequest(gameId);
 
         // when & then
@@ -139,7 +137,7 @@ public class RentGameIntegrationTest {
         Game game = buildGame("rentGameThree");
         game.setId(gameId);
         game.setStatus(GameStatus.UNAVAILABLE);
-        gameRepository.save(game);
+        saveGame(game, gameRepository);
         RentGameRequest request = new RentGameRequest(gameId);
 
         // when & then

@@ -1,8 +1,8 @@
 package com.berrie.gamerental.integration;
 
 import com.berrie.gamerental.dto.AuthenticationRequest;
-import com.berrie.gamerental.model.enums.Role;
 import com.berrie.gamerental.model.User;
+import com.berrie.gamerental.model.enums.Role;
 import com.berrie.gamerental.repository.UserRepository;
 import com.berrie.gamerental.util.ModelMapper;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
-import java.util.Optional;
 
+import static com.berrie.gamerental.integration.TestUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -55,10 +55,9 @@ public class AuthenticationIntegrationTest {
                 .andExpect(content().contentType(APPLICATION_JSON));
 
         // then
-        Optional<User> savedUser = userRepository.findByUsername(VALID_USERNAME);
-        assertThat(savedUser).isPresent();
-        assertUserCredentials(savedUser.get());
-        userRepository.delete(savedUser.get());
+        User savedUser = findUser(VALID_USERNAME, userRepository);
+        assertUserCredentials(savedUser);
+        deleteUser(savedUser, userRepository);
     }
 
     @Test
@@ -83,12 +82,11 @@ public class AuthenticationIntegrationTest {
                 .andExpect(status().isConflict());
 
         // then
-        List<User> users = userRepository.findAllByUsername(berrieUser);
+        List<User> users = findUsers(berrieUser, userRepository);
         assertThat(users).hasSize(1);
-        userRepository.delete(users.get(0));
+        deleteUser(users.get(0), userRepository);
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void authenticateUser_validRequest_authenticatesUser() throws Exception {
         // given
@@ -112,9 +110,8 @@ public class AuthenticationIntegrationTest {
                 .andExpect(content().contentType(APPLICATION_JSON));
 
         // then
-        Optional<User> authenticatedUser = userRepository.findByUsername(berrieUser);
-        userRepository.delete(authenticatedUser.get());
-
+        User authenticatedUser = findUser(berrieUser, userRepository);
+        deleteUser(authenticatedUser, userRepository);
     }
 
     @Test
@@ -137,7 +134,6 @@ public class AuthenticationIntegrationTest {
         assertNoTokenReturned(result);
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void authenticateUser_existingUserIncorrectPassword_doesNotAuthenticateUser() throws Exception {
         // given
@@ -164,8 +160,8 @@ public class AuthenticationIntegrationTest {
 
         // then
         assertNoTokenReturned(result);
-        Optional<User> user = userRepository.findByUsername(berrieUser);
-        userRepository.delete(user.get());
+        User user = findUser(berrieUser, userRepository);
+        deleteUser(user, userRepository);
     }
 
     private void assertUserCredentials(User user) {

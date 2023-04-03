@@ -24,8 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.berrie.gamerental.integration.TestUtil.deleteGames;
-import static com.berrie.gamerental.integration.TestUtil.getJson;
+import static com.berrie.gamerental.integration.TestUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -104,7 +103,7 @@ public class GetGamesIntegrationTest {
         Game game1 = buildGame("GetGames" + one, 8);
         Game game2 = buildGame("GetGames" + two, 12);
         Game game3 = buildGame("GetGames" + three, 4);
-        gameRepository.saveAll(List.of(game1, game2, game3));
+        saveGames(List.of(game1, game2, game3), gameRepository);
         return List.of(game1, game2, game3);
     }
 

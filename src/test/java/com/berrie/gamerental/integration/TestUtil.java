@@ -7,6 +7,7 @@ import com.berrie.gamerental.model.User;
 import com.berrie.gamerental.model.enums.GameStatus;
 import com.berrie.gamerental.model.enums.Genre;
 import com.berrie.gamerental.model.enums.Platform;
+import com.berrie.gamerental.model.enums.RentalStatus;
 import com.berrie.gamerental.repository.GameRepository;
 import com.berrie.gamerental.repository.RentalRepository;
 import com.berrie.gamerental.repository.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,6 +67,52 @@ class TestUtil {
         rentalRepository.delete(rental.get());
     }
 
+    public static void deleteRentals(String rentedBy, RentalRepository rentalRepository) {
+        rentalRepository.deleteAllByRentedBy(rentedBy);
+    }
+
+    public static void deleteUser(User user, UserRepository userRepository) {
+        userRepository.delete(user);
+    }
+
+    public static void saveGame(Game game, GameRepository gameRepository) {
+        gameRepository.save(game);
+    }
+
+    public static void saveGames(List<Game> games, GameRepository gameRepository) {
+        gameRepository.saveAll(games);
+    }
+
+    public static void saveRental(Rental rental, RentalRepository rentalRepository) {
+        rentalRepository.save(rental);
+    }
+
+    public static void saveRentals(List<Rental> rentals, RentalRepository rentalRepository) {
+        rentalRepository.saveAll(rentals);
+    }
+
+    public static User findUser(String username, UserRepository userRepository) {
+        Optional<User> user = userRepository.findByUsername(username);
+        assertThat(user).isPresent();
+        return user.get();
+    }
+
+    public static List<User> findUsers(String username, UserRepository userRepository) {
+        return userRepository.findAllByUsername(username);
+    }
+
+    public static Game findGame(String title, GameRepository gameRepository) {
+        Optional<Game> game = gameRepository.findByTitle(title);
+        assertThat(game).isPresent();
+        return game.get();
+    }
+
+    public static Rental findRental(String rentedBy, RentalRepository rentalRepository) {
+        Optional<Rental> rental = rentalRepository.findByRentedBy(rentedBy);
+        assertThat(rental).isPresent();
+        return rental.get();
+    }
+
     public static String getJson(MvcResult mvcResult) throws Exception {
         return mvcResult.getResponse().getContentAsString();
     }
@@ -79,6 +127,17 @@ class TestUtil {
                 .submittedBy(User.builder()
                         .username("berrie.user")
                         .build())
+                .build();
+    }
+
+    public static Rental buildRental(String username, RentalStatus rentalStatus, Game game, Date returnDate, User user) {
+        return Rental.builder()
+                .rentalStatus(rentalStatus)
+                .user(user)
+                .game(game)
+                .rentalDate(new Date())
+                .returnDate(returnDate)
+                .rentedBy(username)
                 .build();
     }
 }

@@ -37,7 +37,7 @@ public class SearchGameIntegrationTest {
     void searchGame_titleWithMatches_returnsGamesInDescOrder() throws Exception {
         // given
         Game game1 = buildGame("Search Game One"), game2 = buildGame("Search Game Two");
-        gameRepository.saveAll(List.of(game1, game2));
+        saveGames(List.of(game1, game2), gameRepository);
 
         // when
         MvcResult result = mockMvc.perform(get(SEARCH_GAME_URI)
@@ -55,7 +55,7 @@ public class SearchGameIntegrationTest {
 
     @Test
     void searchGame_titleWithNoMatches_doesNotReturnGames() throws Exception {
-        // given & when
+        // given & when & then
         mockMvc.perform(get(SEARCH_GAME_URI)
                         .param("title", "noTitlesFound"))
                 .andExpect(status().isNotFound());
@@ -63,7 +63,7 @@ public class SearchGameIntegrationTest {
 
     @Test
     void searchGame_invalidTitle_doesNotSearchGame() throws Exception {
-        // given & when
+        // given & when & then
         mockMvc.perform(get(SEARCH_GAME_URI)
                 .param("title", "  spaces"))
                 .andExpect(status().isBadRequest());
